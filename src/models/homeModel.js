@@ -7,6 +7,6 @@ const homeSchema = new mongoose.Schema({
   who: {type: String}
 });
 
-const Home = mongoose.model("homeSchema", homeSchema);
+const Home = mongoose.model("Home", homeSchema);
 
 module.exports = Home;

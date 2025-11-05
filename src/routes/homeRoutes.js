@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const {
-  getAbout,
-  createAbout,
-  updateAbout,
-  deleteAbout,
+  getHome,
+  createHome,
+  updateHome,
+  deleteHome,
 } = require("../controllers/homeController");
 
 router.get("/", getAbout);
