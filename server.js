@@ -14,13 +14,17 @@ const homeRoutes = require("./src/routes/homeRoutes");
 const projectsRoutes = require("./src/routes/projectsRoutes");
 const journeyRoutes = require("./src/routes/journeyRoutes");
 const aboutRoutes = require("./src/routes/aboutRoutes");
+const auth = require("./src/middleware/authMiddleware");
+const UserRoutes = require("./src/routes/UserRoutes");
 app.use("/api/home", homeRoutes);
 app.use("/api/projects", projectsRoutes);
 app.use("/api/journey", journeyRoutes);
 app.use("/api/about", aboutRoutes);
 
-
-
+app.use("/api/users", UserRoutes);
+app.get("/api/secret", auth, (req, res) => {
+  res.json({ msg: "You got access, bruh 🔥" })
+});
 
 const PORT = process.env.PORT || 4567;
 app.listen(PORT, () => {
