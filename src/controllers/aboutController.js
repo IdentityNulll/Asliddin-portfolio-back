@@ -1,8 +1,8 @@
-const AboutMe = require("../models/aboutMeModel");
+const { About } = require("../models/aboutModel");
 
 exports.getAbout = async (req, res) => {
   try {
-    const about = await AboutMe.findOne(); 
+    const about = await About.findOne();
     res.json(about);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -11,7 +11,7 @@ exports.getAbout = async (req, res) => {
 
 exports.createAbout = async (req, res) => {
   try {
-    const about = new AboutMe(req.body);
+    const about = new About(req.body);
     await about.save();
     res.status(201).json(about);
   } catch (err) {
@@ -21,7 +21,7 @@ exports.createAbout = async (req, res) => {
 
 exports.updateAbout = async (req, res) => {
   try {
-    const about = await AboutMe.findByIdAndUpdate(req.params.id, req.body, {
+    const about = await About.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
     res.json(about);
@@ -32,7 +32,7 @@ exports.updateAbout = async (req, res) => {
 
 exports.deleteAbout = async (req, res) => {
   try {
-    await AboutMe.findByIdAndDelete(req.params.id);
+    await About.findByIdAndDelete(req.params.id);
     res.json({ message: "About section deleted" });
   } catch (err) {
     res.status(500).json({ error: err.message });

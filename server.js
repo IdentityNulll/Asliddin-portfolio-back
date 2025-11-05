@@ -10,8 +10,15 @@ app.use(cors());
 app.use(express.json());
 
 connectToDb();
-const aboutRoutes = require("./src/routes/aboutMeRoutes");
+const homeRoutes = require("./src/routes/homeRoutes");
+const projectsRoutes = require("./src/routes/projectsRoutes");
+const journeyRoutes = require("./src/routes/journeyRoutes");
+const aboutRoutes = require("./src/routes/aboutRoutes");
+app.use("/api/home", homeRoutes);
+app.use("/api/projects", projectsRoutes);
+app.use("/api/journey", journeyRoutes);
 app.use("/api/about", aboutRoutes);
+
 
 
 

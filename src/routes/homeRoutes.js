@@ -5,7 +5,7 @@ const {
   createAbout,
   updateAbout,
   deleteAbout,
-} = require("../controllers/aboutMeController");
+} = require("../controllers/homeController");
 
 router.get("/", getAbout);
 router.post("/", createAbout);
