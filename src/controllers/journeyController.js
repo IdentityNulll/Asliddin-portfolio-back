@@ -15,13 +15,10 @@ exports.getJourney = async (req, res) => {
 // Create a new journey section (with optional image upload)
 exports.createJourney = async (req, res) => {
   try {
-    const data = req.body;
+    const { title, description, who } = req.body;
+    const imageUrl = req.file ? req.file.filename : null;
 
-    if (req.file) {
-      data.image = `/uploads/${req.file.filename}`; // save the image path
-    }
-
-    const journey = new Journey(data);
+    const journey = new Journey({ title, description, who, imageUrl });
     await journey.save();
     res.status(201).json(journey);
   } catch (err) {
@@ -32,23 +29,26 @@ exports.createJourney = async (req, res) => {
 // Update journey (with optional new image)
 exports.updateJourney = async (req, res) => {
   try {
-    const data = req.body;
+    const { id } = req.params;
+    const { title, description, who } = req.body;
+
+    const journey = await Journey.findById(id);
+    if (!journey) return res.status(404).json({ error: "Not found" });
 
     if (req.file) {
-      data.image = `/uploads/${req.file.filename}`;
-
-      // optionally delete the old image if one exists
-      const oldJourney = await Journey.findById(req.params.id);
-      if (oldJourney && oldJourney.image) {
-        const oldPath = path.join(__dirname, "..", oldJourney.image);
+      // delete old image
+      if (journey.imageUrl) {
+        const oldPath = path.join(__dirname, "..", "..", "uploads", journey.imageUrl);
         if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
       }
+      journey.imageUrl = req.file.filename; // update with new image
     }
 
-    const journey = await Journey.findByIdAndUpdate(req.params.id, data, {
-      new: true,
-    });
+    journey.title = title ?? journey.title;
+    journey.description = description ?? journey.description;
+    journey.who = who ?? journey.who;
 
+    await journey.save();
     res.json(journey);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -58,16 +58,17 @@ exports.updateJourney = async (req, res) => {
 // Delete journey (and its image)
 exports.deleteJourney = async (req, res) => {
   try {
-    const journey = await Journey.findById(req.params.id);
+    const { id } = req.params;
+    const journey = await Journey.findById(id);
     if (!journey) return res.status(404).json({ error: "Journey not found" });
 
     // delete image if it exists
-    if (journey.image) {
-      const imgPath = path.join(__dirname, "..", journey.image);
+    if (journey.imageUrl) {
+      const imgPath = path.join(__dirname, "..", "..", "uploads", journey.imageUrl);
       if (fs.existsSync(imgPath)) fs.unlinkSync(imgPath);
     }
 
-    await Journey.findByIdAndDelete(req.params.id);
+    await Journey.findByIdAndDelete(id);
     res.json({ message: "Journey section deleted" });
   } catch (err) {
     res.status(500).json({ error: err.message });

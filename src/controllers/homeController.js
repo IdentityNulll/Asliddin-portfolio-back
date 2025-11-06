@@ -1,6 +1,8 @@
 const Home = require("../models/homeModel");
 const fs = require("fs");
 const path = require("path");
+// controllers/homeController.js
+const UPLOADS_DIR = path.join(__dirname, "..", "..", "uploads"); // <- outside src
 
 exports.getHome = async (req, res) => {
   try {
@@ -33,11 +35,21 @@ exports.updateHome = async (req, res) => {
     const home = await Home.findById(id);
     if (!home) return res.status(404).json({ error: "Not found" });
 
-    if (req.file) {
-      if (home.image) {
-        const oldPath = path.join(__dirname, "..", "..", "uploads", home.image);
-        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+    if (req.file && home.image) {
+      const oldPath = path.join(UPLOADS_DIR, home.image);
+      console.log("Trying to delete old image at:", oldPath);
+
+      try {
+        if (fs.existsSync(oldPath)) {
+          fs.unlinkSync(oldPath);
+          console.log("Old image deleted ✅");
+        } else {
+          console.log("Old image not found ❌");
+        }
+      } catch (err) {
+        console.error("Error deleting old image:", err);
       }
+
       home.image = req.file.filename;
     }
 

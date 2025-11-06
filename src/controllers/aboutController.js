@@ -16,7 +16,7 @@ exports.getAbout = async (req, res) => {
 exports.createAbout = async (req, res) => {
   try {
     const { title, description, who } = req.body;
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+    const imageUrl = req.file ? req.file.filename : null;
 
     const about = new About({ title, description, who, imageUrl });
     await about.save();
@@ -36,13 +36,19 @@ exports.updateAbout = async (req, res) => {
 
     if (!about) return res.status(404).json({ error: "Not found" });
 
-    // if new image uploaded — delete old one
     if (req.file) {
       if (about.imageUrl) {
-        const oldPath = path.join(__dirname, "..", "..", about.imageUrl);
+        const oldPath = path.join(
+          __dirname,
+          "..",
+          "..",
+          "uploads",
+          about.imageUrl
+        );
         if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
       }
-      about.imageUrl = `/uploads/${req.file.filename}`;
+      // Update the DB field
+      about.imageUrl = req.file.filename;
     }
 
     about.title = title ?? about.title;
