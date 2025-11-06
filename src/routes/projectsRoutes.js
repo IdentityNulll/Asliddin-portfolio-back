@@ -1,17 +1,20 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const {
-    getAllProjects,
-    getProjectById,
-    createProject,
-    updateProject,
-    deleteProject
-} = require('../controllers/projectsController');
+const upload = require("../middleware/upload"); 
 
-router.get('/', getAllProjects);
-router.get('/:id', getProjectById);
-router.post('/', createProject);
-router.put('/:id', updateProject);
-router.delete('/:id', deleteProject);
+const {
+  getAllProjects,
+  getProjectById,
+  createProject,
+  updateProject,
+  deleteProject,
+} = require("../controllers/projectsController");
+
+// 🟢 Routes
+router.get("/", getAllProjects);
+router.get("/:id", getProjectById);
+router.post("/", upload.array("images", 5), createProject);
+router.put("/:id", upload.array("images", 5), updateProject);
+router.delete("/:id", deleteProject);
 
 module.exports = router;

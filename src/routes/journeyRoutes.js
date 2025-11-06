@@ -1,15 +1,18 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
+const upload = require("../middleware/upload"); // 🟢 import multer setup
+
 const {
-    getJourney,
-    createJourney,
-    updateJourney,
-    deleteJourney
-} = require('../controllers/journeyController');
+  getJourney,
+  createJourney,
+  updateJourney,
+  deleteJourney,
+} = require("../controllers/journeyController");
 
-router.get('/', getJourney);
-router.post('/', createJourney);
-router.put('/:id', updateJourney);
-router.delete('/:id', deleteJourney);
+// 🟢 Routes
+router.get("/", getJourney);
+router.post("/", upload.single("image"), createJourney);
+router.put("/:id", upload.single("image"), updateJourney);
+router.delete("/:id", deleteJourney);
 
-module.exports = router;    
+module.exports = router;

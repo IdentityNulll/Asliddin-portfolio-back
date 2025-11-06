@@ -1,15 +1,18 @@
-const express = require('express'); 
+const express = require("express");
 const router = express.Router();
-const {
-    getAbout,
-    createAbout,
-    updateAbout,
-    deleteAbout
-} = require('../controllers/aboutController');
+const upload = require("../middleware/upload"); 
 
-router.get('/', getAbout); 
-router.post('/', createAbout);
-router.put('/:id', updateAbout);
-router.delete('/:id', deleteAbout);
+const {
+  getAbout,
+  createAbout,
+  updateAbout,
+  deleteAbout,
+} = require("../controllers/aboutController");
+
+// 🟢 Routes
+router.get("/", getAbout);
+router.post("/", upload.single("image"), createAbout);
+router.put("/:id", upload.single("image"), updateAbout);
+router.delete("/:id", deleteAbout);
 
 module.exports = router;
