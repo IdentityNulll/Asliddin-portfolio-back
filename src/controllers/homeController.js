@@ -2,7 +2,6 @@ const Home = require("../models/homeModel");
 const fs = require("fs");
 const path = require("path");
 
-
 exports.getHome = async (req, res) => {
   try {
     const home = await Home.findOne();
@@ -12,11 +11,10 @@ exports.getHome = async (req, res) => {
   }
 };
 
-
 exports.createHome = async (req, res) => {
   try {
     const { title, description, who } = req.body;
-    const image = req.file ? `/uploads/${req.file.filename}` : null;
+    const image = req.file ? req.file.filename : null;
 
     const home = new Home({ title, description, who, image });
     await home.save();
@@ -35,13 +33,12 @@ exports.updateHome = async (req, res) => {
     const home = await Home.findById(id);
     if (!home) return res.status(404).json({ error: "Not found" });
 
-    // replace old image if new one uploaded
     if (req.file) {
       if (home.image) {
-        const oldPath = path.join(__dirname, "..", "..", home.image);
+        const oldPath = path.join(__dirname, "..", "..", "uploads", home.image);
         if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
       }
-      home.image = `/uploads/${req.file.filename}`;
+      home.image = req.file.filename;
     }
 
     home.title = title ?? home.title;
