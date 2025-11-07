@@ -41,18 +41,11 @@ exports.updateProject = async (req, res) => {
       return res.status(404).json({ message: "Project not found" });
     }
 
-    // If new images uploaded, replace old ones
     if (req.files && req.files.length > 0) {
-      // Delete old images from server
-      if (oldProject.imageUrl && oldProject.imageUrl.length > 0) {
-        oldProject.imageUrl.forEach((imgPath) => {
-          const fullPath = path.join(__dirname, "..", imgPath);
-          if (fs.existsSync(fullPath)) fs.unlinkSync(fullPath);
-        });
-      }
-
-      // Save new ones
-      data.imageUrl = req.files.map((file) => `/uploads/${file.filename}`);
+      const newImgs = req.files.map((file) => `/uploads/${file.filename}`);
+      data.imageUrl = oldProject.imageUrl
+        ? [...oldProject.imageUrl, ...newImgs]
+        : newImgs;
     }
 
     const project = await Projects.findByIdAndUpdate(req.params.id, data, {
@@ -92,6 +85,29 @@ exports.getProjectById = async (req, res) => {
     const project = await Projects.findById(req.params.id);
     if (!project) return res.status(404).json({ message: "Project not found" });
     res.json(project);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Delete a single image from a project
+exports.deleteProjectImage = async (req, res) => {
+  try {
+    const { id } = req.params; // project ID
+    const { imagePath } = req.body; // image URL (e.g. /uploads/example.jpg)
+
+    const project = await Projects.findById(id);
+    if (!project) return res.status(404).json({ message: "Project not found" });
+
+    // Remove image file from server
+    const fullPath = path.join(__dirname, "..", imagePath);
+    if (fs.existsSync(fullPath)) fs.unlinkSync(fullPath);
+
+    // Remove image path from database
+    project.imageUrl = project.imageUrl.filter((img) => img !== imagePath);
+    await project.save();
+
+    res.json({ message: "Image deleted", project });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
